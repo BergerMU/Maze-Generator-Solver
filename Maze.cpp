@@ -20,11 +20,12 @@ void imageSave(vector<vector<string>> maze)
         for (int x = 0; x < maze.size(); x++)
         {
             // Converts paths to black and walls to white and gray for the pathways
-            unsigned char value = (maze[y][x] == "   ") ? 0
-                                    : (maze[y][x] == " S ") ? 80
-                                    : (maze[y][x] == " E ") ? 80
-                                    : (maze[y][x] == " * ") ? 80
-                                    : (maze[y][x] == " . ") ? 130 : 255;
+            unsigned char value = (maze[y][x] == "   ")   ? 0
+                                  : (maze[y][x] == " S ") ? 80
+                                  : (maze[y][x] == " E ") ? 80
+                                  : (maze[y][x] == " * ") ? 80
+                                  : (maze[y][x] == " . ") ? 130
+                                                          : 255;
             for (int yy = 0; yy < scale; yy++)
             {
                 // Scales the image up
@@ -335,32 +336,40 @@ vector<vector<string>> generateMaze(int size)
     return maze;
 }
 
-int getValidatedInput(int min, int max) {
+int getValidatedInput(int min, int max)
+{
     string input;
     int digit;
     bool valid = false;
 
-    while (!valid) {
+    while (!valid)
+    {
         getline(cin, input);
         valid = true;
 
         // Check if input is a valid digit
-        for (char d : input) {
-            if (!isdigit(d)) {
+        for (char d : input)
+        {
+            if (!isdigit(d))
+            {
                 valid = false;
                 break;
             }
         }
 
-        if (valid) {
+        if (valid)
+        {
             digit = stoi(input);
 
             // Check if the digit is within the allowed range
-            if (digit < min || digit > max) {
+            if (digit < min || digit > max)
+            {
                 valid = false;
                 cout << "Please enter a number between " << min << " and " << max << ": ";
             }
-        } else {
+        }
+        else
+        {
             cout << "Invalid input. Please enter a number: ";
         }
     }
@@ -368,9 +377,11 @@ int getValidatedInput(int min, int max) {
     return digit;
 }
 
-void menu(vector<vector<string>> maze) {
-    while (true) {
-        cout << "Would you like to save, solve, or exit from the maze?" << endl;
+void menu(vector<vector<string>> maze)
+{
+    while (true)
+    {
+        cout << "What would you like to do?" << endl;
         cout << "(1) Save" << endl;
         cout << "(2) Generate new Maze" << endl;
         cout << "(3) Solve" << endl;
@@ -379,32 +390,33 @@ void menu(vector<vector<string>> maze) {
         int choice = getValidatedInput(1, 4);
         system("clear");
 
-        switch (choice) {
-            //Save
-            case 1:
-                displayMaze(maze);
-                imageSave(maze);
-                menu(maze);
-                break;
-            //New maze
-            case 2:
-                // Generate new maze
-                maze = generateMaze(askMazeSize());
-                displayMaze(maze);
-                break;
-            //Solve
-            case 3:
-                maze = solveMaze(maze);
-                displayMaze(maze);
-                cout << "Maze Solved" << endl;
-                break;
-            //Exit
-            case 4:
-                cout << "Bye" << endl;
-                exit(0);
-            default:
-                cout << "Invalid option. Please try again." << endl;
-                break;
+        switch (choice)
+        {
+        // Save
+        case 1:
+            displayMaze(maze);
+            imageSave(maze);
+            menu(maze);
+            break;
+        // New maze
+        case 2:
+            // Generate new maze
+            maze = generateMaze(askMazeSize());
+            displayMaze(maze);
+            break;
+        // Solve
+        case 3:
+            maze = solveMaze(maze);
+            displayMaze(maze);
+            cout << "Maze Solved" << endl;
+            break;
+        // Exit
+        case 4:
+            cout << "Bye" << endl;
+            exit(0);
+        default:
+            cout << "Invalid option. Please try again." << endl;
+            break;
         }
     }
 }
