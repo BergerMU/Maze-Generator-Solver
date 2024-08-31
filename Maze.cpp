@@ -9,7 +9,7 @@
 #include "stb_image_write.h"
 using namespace std;
 
-void imageSave(vector<vector<string>> maze)
+void imageSave(vector<vector<string>> maze, bool solved)
 {
     // Initializing Variables
     int scale = 20;
@@ -36,8 +36,18 @@ void imageSave(vector<vector<string>> maze)
             }
         }
     }
-    stbi_write_png("Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
-    cout << "Maze saved to Maze.png" << endl;
+
+    if (solved == false)
+    {
+        stbi_write_png("Unsolved_Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
+        cout << "Maze saved to Unsolved_Maze.png" << endl;
+    }
+    else if (solved == true)
+    {
+        stbi_write_png("Solved_Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
+        cout << "Maze saved to Solved_maze.png" << endl;
+    }
+    
 }
 
 int askMazeSize()
@@ -379,6 +389,7 @@ int getValidatedInput(int min, int max)
 
 void menu(vector<vector<string>> maze)
 {
+    bool solved = false;
     while (true)
     {
         cout << "What would you like to do?" << endl;
@@ -386,6 +397,7 @@ void menu(vector<vector<string>> maze)
         cout << "(2) Generate new Maze" << endl;
         cout << "(3) Solve" << endl;
         cout << "(4) Exit" << endl;
+        cout << "(#) ";
 
         int choice = getValidatedInput(1, 4);
         system("clear");
@@ -395,7 +407,7 @@ void menu(vector<vector<string>> maze)
         // Save
         case 1:
             displayMaze(maze);
-            imageSave(maze);
+            imageSave(maze, solved);
             menu(maze);
             break;
         // New maze
@@ -406,6 +418,7 @@ void menu(vector<vector<string>> maze)
             break;
         // Solve
         case 3:
+            solved = true;
             maze = solveMaze(maze);
             displayMaze(maze);
             cout << "Maze Solved" << endl;
