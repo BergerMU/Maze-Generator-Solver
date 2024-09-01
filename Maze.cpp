@@ -15,39 +15,56 @@ void imageSave(vector<vector<string>> maze, bool solved)
     int scale = 20;
     int scaled_size = maze.size() * scale;
     vector<unsigned char> image(scaled_size * scaled_size);
-    for (int y = 0; y < maze.size(); y++)
+    if (solved == false)
     {
-        for (int x = 0; x < maze.size(); x++)
+        for (int y = 0; y < maze.size(); y++)
         {
-            // Converts paths to black and walls to white and gray for the pathways
-            unsigned char value = (maze[y][x] == "   ")   ? 0
-                                  : (maze[y][x] == " S ") ? 80
-                                  : (maze[y][x] == " E ") ? 80
-                                  : (maze[y][x] == " * ") ? 80
-                                  : (maze[y][x] == " . ") ? 130
-                                                          : 255;
-            for (int yy = 0; yy < scale; yy++)
+            for (int x = 0; x < maze.size(); x++)
             {
-                // Scales the image up
-                for (int xx = 0; xx < scale; xx++)
+                // Converts paths to black and walls to white and gray for the pathways
+                unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 0
+                                                              : (maze[y][x] == " E ")   ? 0
+                                                              : (maze[y][x] == " * ")   ? 80
+                                                              : (maze[y][x] == " . ")   ? 130
+                                                                                        : 255;
+                for (int yy = 0; yy < scale; yy++)
                 {
-                    image[(y * scale + yy) * scaled_size + (x * scale + xx)] = value;
+                    // Scales the image up
+                    for (int xx = 0; xx < scale; xx++)
+                    {
+                        image[(y * scale + yy) * scaled_size + (x * scale + xx)] = value;
+                    }
                 }
             }
         }
-    }
-
-    if (solved == false)
-    {
         stbi_write_png("Unsolved_Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
         cout << "Maze saved to Unsolved_Maze.png" << endl;
     }
     else if (solved == true)
     {
+        for (int y = 0; y < maze.size(); y++)
+        {
+            for (int x = 0; x < maze.size(); x++)
+            {
+                // Converts paths to black and walls to white and gray for the pathways
+                unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 80
+                                                              : (maze[y][x] == " E ")   ? 80
+                                                              : (maze[y][x] == " * ")   ? 80
+                                                              : (maze[y][x] == " . ")   ? 130
+                                                                                        : 255;
+                for (int yy = 0; yy < scale; yy++)
+                {
+                    // Scales the image up
+                    for (int xx = 0; xx < scale; xx++)
+                    {
+                        image[(y * scale + yy) * scaled_size + (x * scale + xx)] = value;
+                    }
+                }
+            }
+        }
         stbi_write_png("Solved_Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
-        cout << "Maze saved to Solved_maze.png" << endl;
+        cout << "Maze saved to Solved_Maze.png" << endl;
     }
-    
 }
 
 int askMazeSize()
@@ -118,7 +135,7 @@ void displayMaze(vector<vector<string>> maze)
     }
 }
 
-vector<vector<string>> solveMaze(vector<vector<string>> maze)
+vector<vector<string>> rightSolve(vector<vector<string>> maze)
 {
     // Find entrance and exit of the maze
     int start_x, start_y, exit_x, exit_y;
@@ -140,6 +157,7 @@ vector<vector<string>> solveMaze(vector<vector<string>> maze)
         }
     }
 
+    // Initializing Variables
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {0, 1, 2, 3};
 
@@ -197,11 +215,111 @@ vector<vector<string>> solveMaze(vector<vector<string>> maze)
         }
         else if (!previous_locations.empty())
         {
-            maze[start_y][start_x] = " . ";
+            if (maze[start_y][start_x] != " S " && maze[start_y][start_x] != " E ")
+            {
+                maze[start_y][start_x] = " . ";
+            }
             start_y = previous_locations.back().second;
             start_x = previous_locations.back().first;
-            maze[start_y][start_x] = " . ";
             previous_locations.pop_back();
+
+        }
+        if (start_y == exit_y && start_x == exit_x)
+        {
+            break;
+        }
+    }
+    return maze;
+}
+
+vector<vector<string>> leftSolve(vector<vector<string>> maze)
+{
+    // Find entrance and exit of the maze
+    int start_x, start_y, exit_x, exit_y;
+
+    for (int y = 0; y < maze.size(); y++)
+    {
+        for (int x = 0; x < maze[0].size(); x++)
+        {
+            if (maze[y][x] == " S ")
+            {
+                start_x = x;
+                start_y = y;
+            }
+            else if (maze[y][x] == " E ")
+            {
+                exit_x = x;
+                exit_y = y;
+            }
+        }
+    }
+
+    // Initializing Variables
+    vector<pair<int, int>> previous_locations;
+    vector<int> checking_order = {3, 2, 1, 0};
+
+    while (start_x != exit_x || start_y != exit_y)
+    {
+        bool moved = false;
+
+        for (int i = 0; i < checking_order.size() && !moved; i++)
+        {
+            int direction = checking_order[i];
+            switch (direction)
+            {
+            // Right
+            case 0:
+                if (start_x + 1 < maze[0].size() && (maze[start_y][start_x + 1] == " E " || maze[start_y][start_x + 1] == "   "))
+                {
+                    start_x += 1;
+                    moved = true;
+                    checking_order = {3, 0, 1, 2};
+                }
+                break;
+            // Down
+            case 1:
+                if (start_y + 1 < maze.size() && (maze[start_y + 1][start_x] == " E " || maze[start_y + 1][start_x] == "   "))
+                {
+                    start_y += 1;
+                    moved = true;
+                    checking_order = {0, 1, 2, 3};
+                }
+                break;
+            // Left
+            case 2:
+                if (start_x - 1 >= 0 && (maze[start_y][start_x - 1] == " E " || maze[start_y][start_x - 1] == "   "))
+                {
+                    start_x -= 1;
+                    moved = true;
+                    checking_order = {3, 2, 1, 0};
+                }
+                break;
+            // Up
+            case 3:
+                if (start_y - 1 >= 0 && (maze[start_y - 1][start_x] == " E " || maze[start_y - 1][start_x] == "   "))
+                {
+                    start_y -= 1;
+                    moved = true;
+                    checking_order = {2, 3, 1, 0};
+                }
+                break;
+            }
+        }
+        if (moved)
+        {
+            maze[start_y][start_x] = " * ";
+            previous_locations.push_back({start_x, start_y});
+        }
+        else if (!previous_locations.empty())
+        {
+            if (maze[start_y][start_x] != " S " && maze[start_y][start_x] != " E ")
+            {
+                maze[start_y][start_x] = " . ";
+            }
+            start_y = previous_locations.back().second;
+            start_x = previous_locations.back().first;
+            previous_locations.pop_back();
+
         }
         if (start_y == exit_y && start_x == exit_x)
         {
@@ -267,7 +385,7 @@ vector<vector<string>> generateMaze(int size)
 
     // Initializing loop variables
     bool generated = false;
-    vector<int> previous_locations;
+    vector<pair<int, int>> previous_locations;
 
     // Loops until fully generated
     while (!generated)
@@ -324,16 +442,14 @@ vector<vector<string>> generateMaze(int size)
                 }
             }
             // Adds the location of each new direction to a vector to backtrack later
-            previous_locations.push_back(spot_x);
-            previous_locations.push_back(spot_y);
+            previous_locations.push_back({spot_x, spot_y});
         }
 
         // Checks if there aren't any more locations and starts to backtrack
         else if (!previous_locations.empty())
         {
-            spot_y = previous_locations.back();
-            previous_locations.pop_back();
-            spot_x = previous_locations.back();
+            spot_y = previous_locations.back().second;
+            spot_x = previous_locations.back().first;
             previous_locations.pop_back();
         }
 
@@ -346,7 +462,7 @@ vector<vector<string>> generateMaze(int size)
     return maze;
 }
 
-int getValidatedInput(int min, int max)
+int getValidInput(int min, int max)
 {
     string input;
     int digit;
@@ -387,8 +503,49 @@ int getValidatedInput(int min, int max)
     return digit;
 }
 
+vector<vector<string>> solvingMenu(vector<vector<string>> maze)
+{
+    vector<vector<string>> solved_maze;
+
+    while (true)
+    {
+        displayMaze(maze);
+        cout << "List of solvnig algorithms?" << endl;
+        cout << "(1) Right turn only" << endl;
+        cout << "(2) Left turn only" << endl;
+        cout << "(3) Go back" << endl;
+        cout << "(4) Exit" << endl;
+
+        int choice = getValidInput(1, 4);
+        system("clear");
+
+        switch(choice)
+        {
+            case 1:
+                cout << "Maze Solved" << endl;
+                solved_maze = rightSolve(maze);
+                displayMaze(solved_maze);
+                return solved_maze;
+            case 2:
+                cout << "Maze Solved" << endl;
+                solved_maze = leftSolve(maze);
+                displayMaze(solved_maze);
+                return solved_maze;
+            case 3:
+                break;
+            case 4:
+                cout << "Bye" << endl;
+                exit(0);
+            default:
+                cout << "Invalid option. Please try again." << endl;
+                break;
+        }
+    }
+}
+
 void menu(vector<vector<string>> maze)
 {
+    vector<vector<string>> solved_maze;
     bool solved = false;
     while (true)
     {
@@ -399,17 +556,27 @@ void menu(vector<vector<string>> maze)
         cout << "(4) Exit" << endl;
         cout << "(#) ";
 
-        int choice = getValidatedInput(1, 4);
+        int choice = getValidInput(1, 4);
         system("clear");
 
         switch (choice)
         {
         // Save
         case 1:
-            displayMaze(maze);
-            imageSave(maze, solved);
-            menu(maze);
-            break;
+            if (solved)
+            {
+                displayMaze(solved_maze);
+                imageSave(solved_maze, solved);
+                menu(maze);
+                break;
+            }
+            else if (!solved)
+            {
+                displayMaze(maze);
+                imageSave(maze, solved);
+                menu(maze);
+                break;
+            }
         // New maze
         case 2:
             // Generate new maze
@@ -418,10 +585,15 @@ void menu(vector<vector<string>> maze)
             break;
         // Solve
         case 3:
-            solved = true;
-            maze = solveMaze(maze);
-            displayMaze(maze);
-            cout << "Maze Solved" << endl;
+            solved_maze = solvingMenu(maze);
+            if (!solved_maze.empty())
+            {
+                solved = true;
+            }
+            else
+            {
+                solved = false;
+            }
             break;
         // Exit
         case 4:
