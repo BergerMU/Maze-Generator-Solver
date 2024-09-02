@@ -157,7 +157,11 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
         }
     }
 
+    // Sets startings position to '*'
+    maze[start_y][start_x] = " * ";
+
     // Initializing Variables
+    int count = 1;
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {0, 1, 2, 3};
 
@@ -212,6 +216,7 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
         {
             maze[start_y][start_x] = " * ";
             previous_locations.push_back({start_x, start_y});
+            count++;
         }
         else if (!previous_locations.empty())
         {
@@ -222,13 +227,13 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
             start_y = previous_locations.back().second;
             start_x = previous_locations.back().first;
             previous_locations.pop_back();
-
         }
         if (start_y == exit_y && start_x == exit_x)
         {
             break;
         }
     }
+    cout << "Steps: " << count << endl;
     return maze;
 }
 
@@ -254,7 +259,11 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
         }
     }
 
+    // Sets startings position to '*'
+    maze[start_y][start_x] = " * ";
+
     // Initializing Variables
+    int count = 1;
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {3, 2, 1, 0};
 
@@ -307,6 +316,7 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
         }
         if (moved)
         {
+            count++;
             maze[start_y][start_x] = " * ";
             previous_locations.push_back({start_x, start_y});
         }
@@ -319,13 +329,13 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
             start_y = previous_locations.back().second;
             start_x = previous_locations.back().first;
             previous_locations.pop_back();
-
         }
         if (start_y == exit_y && start_x == exit_x)
         {
             break;
         }
     }
+    cout << "Steps: " << count << endl;
     return maze;
 }
 
@@ -519,26 +529,26 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze)
         int choice = getValidInput(1, 4);
         system("clear");
 
-        switch(choice)
+        switch (choice)
         {
-            case 1:
-                cout << "Maze Solved" << endl;
-                solved_maze = rightSolve(maze);
-                displayMaze(solved_maze);
-                return solved_maze;
-            case 2:
-                cout << "Maze Solved" << endl;
-                solved_maze = leftSolve(maze);
-                displayMaze(solved_maze);
-                return solved_maze;
-            case 3:
-                break;
-            case 4:
-                cout << "Bye" << endl;
-                exit(0);
-            default:
-                cout << "Invalid option. Please try again." << endl;
-                break;
+        case 1:
+            cout << "Maze Solved" << endl;
+            solved_maze = rightSolve(maze);
+            displayMaze(solved_maze);
+            return solved_maze;
+        case 2:
+            cout << "Maze Solved" << endl;
+            solved_maze = leftSolve(maze);
+            displayMaze(solved_maze);
+            return solved_maze;
+        case 3:
+            break;
+        case 4:
+            cout << "Bye" << endl;
+            exit(0);
+        default:
+            cout << "Invalid option. Please try again." << endl;
+            break;
         }
     }
 }
@@ -551,8 +561,8 @@ void menu(vector<vector<string>> maze)
     {
         cout << "What would you like to do?" << endl;
         cout << "(1) Save" << endl;
-        cout << "(2) Generate new Maze" << endl;
-        cout << "(3) Solve" << endl;
+        cout << "(2) Solve" << endl;
+        cout << "(3) Generate new Maze" << endl;
         cout << "(4) Exit" << endl;
         cout << "(#) ";
 
@@ -577,14 +587,8 @@ void menu(vector<vector<string>> maze)
                 menu(maze);
                 break;
             }
-        // New maze
-        case 2:
-            // Generate new maze
-            maze = generateMaze(askMazeSize());
-            displayMaze(maze);
-            break;
         // Solve
-        case 3:
+        case 2:
             solved_maze = solvingMenu(maze);
             if (!solved_maze.empty())
             {
@@ -594,6 +598,12 @@ void menu(vector<vector<string>> maze)
             {
                 solved = false;
             }
+            break;
+            
+        // New maze
+        case 3:
+            maze = generateMaze(askMazeSize());
+            displayMaze(maze);
             break;
         // Exit
         case 4:
