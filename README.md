@@ -1,4 +1,4 @@
-# A maze generation and solving program written in C++
+# maze generation and solving written in C++
 
 ## How it works:
 1. Enter the size of your maze (must be an odd number)
