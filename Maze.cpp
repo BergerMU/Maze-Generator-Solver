@@ -1,5 +1,6 @@
 // Maze Generator - Berger
 
+#include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <vector>
@@ -161,7 +162,7 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
     maze[start_y][start_x] = " * ";
 
     // Initializing Variables
-    int count = 1;
+    int steps = 1;
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {0, 1, 2, 3};
 
@@ -216,7 +217,7 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
         {
             maze[start_y][start_x] = " * ";
             previous_locations.push_back({start_x, start_y});
-            count++;
+            steps++;
         }
         else if (!previous_locations.empty())
         {
@@ -233,7 +234,7 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
             break;
         }
     }
-    cout << "Steps: " << count << endl;
+    cout << "Steps: " << steps << endl;
     return maze;
 }
 
@@ -259,11 +260,11 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
         }
     }
 
-    // Sets startings position to '*'
+    // Sets starting and ending position to '*'
     maze[start_y][start_x] = " * ";
 
     // Initializing Variables
-    int count = 1;
+    int steps = 1;
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {3, 2, 1, 0};
 
@@ -300,7 +301,7 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
                 {
                     start_x -= 1;
                     moved = true;
-                    checking_order = {3, 2, 1, 0};
+                    checking_order = {1, 2, 3, 0};
                 }
                 break;
             // Up
@@ -316,9 +317,9 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
         }
         if (moved)
         {
-            count++;
+            steps++;
             maze[start_y][start_x] = " * ";
-            previous_locations.push_back({start_x, start_y});
+            previous_locations.push_back({start_y, start_x});
         }
         else if (!previous_locations.empty())
         {
@@ -326,8 +327,8 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
             {
                 maze[start_y][start_x] = " . ";
             }
-            start_y = previous_locations.back().second;
-            start_x = previous_locations.back().first;
+            start_y = previous_locations.back().first;
+            start_x = previous_locations.back().second;
             previous_locations.pop_back();
         }
         if (start_y == exit_y && start_x == exit_x)
@@ -335,7 +336,101 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
             break;
         }
     }
-    cout << "Steps: " << count << endl;
+    cout << "Steps: " << steps << endl;
+    return maze;
+}
+
+vector<vector<string>> randomSolve(vector<vector<string>> maze)
+{
+    // Find entrance and exit of the maze
+    int start_x, start_y, exit_x, exit_y;
+
+    for (int y = 0; y < maze.size(); y++)
+    {
+        for (int x = 0; x < maze[0].size(); x++)
+        {
+            if (maze[y][x] == " S ")
+            {
+                start_x = x;
+                start_y = y;
+            }
+            else if (maze[y][x] == " E ")
+            {
+                exit_x = x;
+                exit_y = y;
+            }
+        }
+    }
+
+    // Sets startings position to '*'
+    maze[start_y][start_x] = " * ";
+
+    // Initializing Variables
+    vector<pair<int, int>> previous_locations;
+    vector<int> checking_order = {0, 1, 2, 3};
+    int steps = 0;
+
+    while (start_x != exit_x || start_y != exit_y)
+    {
+        random_shuffle(checking_order.begin(), checking_order.end());
+        bool moved = false;
+
+        for (auto direction : checking_order)
+        {
+            switch (direction)
+            {
+            // Right
+            case (0):
+                if (start_x + 1 < maze[0].size() && (maze[start_y][start_x + 1] == " E " || maze[start_y][start_x + 1] == "   "))
+                {
+                    start_x += 1;
+                    moved = true;
+                }
+                break;
+            // Right
+            case (1):
+                if (start_y + 1 < maze.size() && (maze[start_y + 1][start_x] == " E " || maze[start_y + 1][start_x] == "   "))
+                {
+                    start_y += 1;
+                    moved = true;
+                }
+                break;
+            case 2:
+                if (start_x - 1 >= 0 && (maze[start_y][start_x - 1] == " E " || maze[start_y][start_x - 1] == "   "))
+                {
+                    start_x -= 1;
+                    moved = true;
+                }
+                break;
+            case 3:
+                if (start_y - 1 >= 0 && (maze[start_y - 1][start_x] == " E " || maze[start_y - 1][start_x] == "   "))
+                {
+                    start_y -= 1;
+                    moved = true;
+                }
+                break;
+            }
+            if (moved)
+            {
+                maze[start_y][start_x] = " * ";
+                previous_locations.push_back({start_y, start_x});
+                steps++;
+                break;
+            }
+        }
+
+        if (!moved && !previous_locations.empty())
+        {
+            if (maze[start_y][start_x] != " S " && maze[start_y][start_x] != " E ")
+            {
+                maze[start_y][start_x] = " . ";
+            }
+            start_y = previous_locations.back().first;
+            start_x = previous_locations.back().second;
+            previous_locations.pop_back();
+        }
+    }
+    cout << "Steps: " << steps << endl;
     return maze;
 }
 
@@ -523,8 +618,9 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze)
         cout << "List of solvnig algorithms?" << endl;
         cout << "(1) Right turn only" << endl;
         cout << "(2) Left turn only" << endl;
-        cout << "(3) Go back" << endl;
-        cout << "(4) Exit" << endl;
+        cout << "(3) Random solve" << endl;
+        cout << "(4) Go back" << endl;
+        cout << "(5) Exit" << endl;
 
         int choice = getValidInput(1, 4);
         system("clear");
@@ -542,8 +638,13 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze)
             displayMaze(solved_maze);
             return solved_maze;
         case 3:
-            break;
+            cout << "Maze Solved" << endl;
+            solved_maze = randomSolve(maze);
+            displayMaze(solved_maze);
+            return solved_maze;
         case 4:
+            break;
+        case 5:
             cout << "Bye" << endl;
             exit(0);
         default:
@@ -599,7 +700,7 @@ void menu(vector<vector<string>> maze)
                 solved = false;
             }
             break;
-            
+
         // New maze
         case 3:
             maze = generateMaze(askMazeSize());
