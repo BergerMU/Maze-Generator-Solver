@@ -1,13 +1,13 @@
 // Maze Generator - Berger
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <vector>
 #include <cctype>
 #include <string>
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
 using namespace std;
 
 void imageSave(vector<vector<string>> maze, bool solved)
@@ -234,7 +234,9 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
             break;
         }
     }
-    cout << "Steps: " << steps << endl;
+    displayMaze(maze);
+    cout << "Maze solved using right turns" << endl;
+    cout << "Steps taken: " << steps << endl;
     return maze;
 }
 
@@ -336,7 +338,9 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
             break;
         }
     }
-    cout << "Steps: " << steps << endl;
+    displayMaze(maze);
+    cout << "Maze solved using left turns" << endl;
+    cout << "Steps taken: " << steps << endl;
     return maze;
 }
 
@@ -368,7 +372,7 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
     // Initializing Variables
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {0, 1, 2, 3};
-    int steps = 0;
+    int steps = 1;
 
     while (start_x != exit_x || start_y != exit_y)
     {
@@ -430,7 +434,9 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
             previous_locations.pop_back();
         }
     }
-    cout << "Steps: " << steps << endl;
+    displayMaze(maze);
+    cout << "Maze solved using random directions" << endl;
+    cout << "Steps taken: " << steps << endl;
     return maze;
 }
 
@@ -596,12 +602,12 @@ int getValidInput(int min, int max)
             if (digit < min || digit > max)
             {
                 valid = false;
-                cout << "Please enter a number between " << min << " and " << max << ": ";
+                cout << "Error: Enter a number between " << min << " and " << max << ": ";
             }
         }
         else
         {
-            cout << "Invalid input. Please enter a number: ";
+            cout << "Error: Enter a number between " << min << " and " << max << ": ";
         }
     }
 
@@ -611,46 +617,39 @@ int getValidInput(int min, int max)
 vector<vector<string>> solvingMenu(vector<vector<string>> maze)
 {
     vector<vector<string>> solved_maze;
+    displayMaze(maze);
+    cout << "List of solving algorithms?" << endl;
+    cout << "(1) Right turn only" << endl;
+    cout << "(2) Left turn only" << endl;
+    cout << "(3) Random solve" << endl;
+    cout << "(4) Go back" << endl;
+    cout << "(5) Exit" << endl;
 
-    while (true)
+    int choice = getValidInput(1, 5);
+    system("clear");
+
+    switch (choice)
     {
+    case 1:
+        solved_maze = rightSolve(maze);
+        return solved_maze;
+        break;
+    case 2:
+        solved_maze = leftSolve(maze);
+        return solved_maze;
+        break;
+    case 3:
+        solved_maze = randomSolve(maze);
+        return solved_maze;
+        break;
+    case 4:
         displayMaze(maze);
-        cout << "List of solvnig algorithms?" << endl;
-        cout << "(1) Right turn only" << endl;
-        cout << "(2) Left turn only" << endl;
-        cout << "(3) Random solve" << endl;
-        cout << "(4) Go back" << endl;
-        cout << "(5) Exit" << endl;
-
-        int choice = getValidInput(1, 5);
-        system("clear");
-
-        switch (choice)
-        {
-        case 1:
-            cout << "Maze Solved" << endl;
-            solved_maze = rightSolve(maze);
-            displayMaze(solved_maze);
-            return solved_maze;
-        case 2:
-            cout << "Maze Solved" << endl;
-            solved_maze = leftSolve(maze);
-            displayMaze(solved_maze);
-            return solved_maze;
-        case 3:
-            cout << "Maze Solved" << endl;
-            solved_maze = randomSolve(maze);
-            displayMaze(solved_maze);
-            return solved_maze;
-        case 4:
-            break;
-        case 5:
-            cout << "Bye" << endl;
-            exit(0);
-        default:
-            cout << "Invalid option. Please try again." << endl;
-            break;
-        }
+        return solved_maze;
+        break;
+    case 5:
+        cout << "Bye" << endl;
+        exit(0);
+        break;
     }
 }
 
@@ -696,7 +695,6 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
                 solved = false;
             }
             break;
-
         // New maze
         case 3:
             maze = generateMaze(askMazeSize());
