@@ -2,20 +2,31 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+#include <sys/stat.h>
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
+#include <filesystem>
 #include <vector>
 #include <cctype>
 #include <string>
+#include <ctime>
 using namespace std;
+using namespace filesystem;
 
-void imageSave(vector<vector<string>> maze, bool solved)
+namespace fs = filesystem;
+
+void imageSave(vector<vector<string>> maze, bool solved, int count)
 {
     // Initializing Variables
     int scale = 20;
     int scaled_size = maze.size() * scale;
     vector<unsigned char> image(scaled_size * scaled_size);
+
+    // Creates save file
+    mkdir("Mazes", 0777);
+    mkdir("Mazes/images", 0777);
+
     if (solved == false)
     {
         for (int y = 0; y < maze.size(); y++)
@@ -38,8 +49,15 @@ void imageSave(vector<vector<string>> maze, bool solved)
                 }
             }
         }
-        stbi_write_png("Unsolved_Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
-        cout << "Maze saved to Unsolved_Maze.png" << endl;
+
+        // Gets the time
+        time_t timestamp;
+        time(&timestamp);
+
+        // Saves file to folder
+        string image_file_path = "Mazes/images/Unsolved_Maze.png";
+        stbi_write_png(image_file_path.c_str(), scaled_size, scaled_size, 1, image.data(), scaled_size);
+        cout << "Maze saved to Mazes/images/Unsolved_Maze.png" << endl;
     }
     else if (solved == true)
     {
@@ -63,8 +81,55 @@ void imageSave(vector<vector<string>> maze, bool solved)
                 }
             }
         }
-        stbi_write_png("Solved_Maze.png", scaled_size, scaled_size, 1, image.data(), scaled_size);
-        cout << "Maze saved to Solved_Maze.png" << endl;
+        // Saves file to folder
+        string image_file_path = "Mazes/images/Solved_Maze.png";
+        stbi_write_png(image_file_path.c_str(), scaled_size, scaled_size, 1, image.data(), scaled_size);
+        cout << "Maze saved to Mazes/images/Solved_maze.png" << endl;
+    }
+}
+
+void videoSave(vector<vector<string>> maze, string algorithm, int count)
+{
+    // Initializing Variables
+    int scale = 20;
+    int scaled_size = maze.size() * scale;
+    vector<unsigned char> image(scaled_size * scaled_size);
+
+    // Creates save files
+    mkdir("Mazes", 0777);
+    mkdir("Mazes/video", 0777);
+
+    for (int y = 0; y < maze.size(); y++)
+    {
+        for (int x = 0; x < maze.size(); x++)
+        {
+            // Converts paths to black and walls to white and gray for the pathways
+            unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 80
+                                                          : (maze[y][x] == " E ")   ? 80
+                                                          : (maze[y][x] == " * ")   ? 80
+                                                          : (maze[y][x] == " . ")   ? 130
+                                                                                    : 255;
+            for (int yy = 0; yy < scale; yy++)
+            {
+                // Scales the image up
+                for (int xx = 0; xx < scale; xx++)
+                {
+                    image[(y * scale + yy) * scaled_size + (x * scale + xx)] = value;
+                }
+            }
+        }
+    }
+
+    try
+    {
+        // Saves each frame in the newly created folder
+        string file_name = algorithm + "_maze_" + to_string(count) + ".png";
+        string image_file_path = "Mazes/video/temp/" + file_name;
+        stbi_write_png(image_file_path.c_str(), scaled_size, scaled_size, 1, image.data(), scaled_size);
+    }
+    catch (const fs::filesystem_error &e)
+    {
+        cerr << "Error: " << e.what() << '\n';
     }
 }
 
@@ -161,8 +226,13 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
     // Sets startings position to '*'
     maze[start_y][start_x] = " * ";
 
+    // Deletes and recreates folder for saving each temp frame
+    remove_all("Mazes/video/temp/");
+    mkdir("Mazes/video/temp", 0777);
+
     // Initializing Variables
     int steps = 1;
+    string algorithm = "right_solve";
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {0, 1, 2, 3};
 
@@ -215,6 +285,10 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
         }
         if (moved)
         {
+            // Saves each frame
+            videoSave(maze, algorithm, steps);
+
+            // Sets the path
             maze[start_y][start_x] = " * ";
             previous_locations.push_back({start_x, start_y});
             steps++;
@@ -265,8 +339,13 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
     // Sets starting and ending position to '*'
     maze[start_y][start_x] = " * ";
 
+    // Deletes and recreates folder for saving each temp frame
+    remove_all("Mazes/video/temp/");
+    mkdir("Mazes/video/temp", 0777);
+
     // Initializing Variables
     int steps = 1;
+    string algorithm = "left_solve";
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {3, 2, 1, 0};
 
@@ -319,9 +398,13 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
         }
         if (moved)
         {
-            steps++;
+            // Saves each frame
+            videoSave(maze, algorithm, steps);
+
+            // Sets the path
             maze[start_y][start_x] = " * ";
             previous_locations.push_back({start_y, start_x});
+            steps++;
         }
         else if (!previous_locations.empty())
         {
@@ -369,10 +452,15 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
     // Sets startings position to '*'
     maze[start_y][start_x] = " * ";
 
+    // Deletes and recreates folder for saving each temp frame
+    remove_all("Mazes/video/temp/");
+    mkdir("Mazes/video/temp", 0777);
+
     // Initializing Variables
+    int steps = 1;
+    string algorithm = "random_solve";
     vector<pair<int, int>> previous_locations;
     vector<int> checking_order = {0, 1, 2, 3};
-    int steps = 1;
 
     while (start_x != exit_x || start_y != exit_y)
     {
@@ -416,10 +504,13 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
             }
             if (moved)
             {
+                // Saves each frame
+                videoSave(maze, algorithm, steps);
+
+                // Sets the path
                 maze[start_y][start_x] = " * ";
                 previous_locations.push_back({start_y, start_x});
                 steps++;
-                break;
             }
         }
 
@@ -674,13 +765,13 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
             if (solved)
             {
                 displayMaze(solved_maze);
-                imageSave(solved_maze, solved);
+                imageSave(solved_maze, solved, 2);
                 menu(maze, solved_maze, solved);
             }
             if (!solved)
             {
                 displayMaze(maze);
-                imageSave(maze, solved);
+                imageSave(maze, solved, 1);
                 menu(maze, solved_maze, solved);
             }
         // Solve
@@ -729,4 +820,5 @@ int main()
     // Displays maze and sends user to main menu
     displayMaze(maze);
     menu(maze, solved_maze, solved);
+    return 0;
 }
