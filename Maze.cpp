@@ -2,11 +2,12 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+#include <filesystem>
 #include <sys/stat.h>
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
-#include <filesystem>
+#include <random>
 #include <vector>
 #include <cctype>
 #include <string>
@@ -24,8 +25,8 @@ void imageSave(vector<vector<string>> maze, bool solved, int count)
     vector<unsigned char> image(scaled_size * scaled_size);
 
     // Creates save file
-    mkdir("Mazes", 0777);
-    mkdir("Mazes/images", 0777);
+    create_directories("Mazes");
+    create_directories("Mazes/images");
 
     if (solved == false)
     {
@@ -96,8 +97,8 @@ void videoSave(vector<vector<string>> maze, string algorithm, int count)
     vector<unsigned char> image(scaled_size * scaled_size);
 
     // Creates save files
-    mkdir("Mazes", 0777);
-    mkdir("Mazes/video", 0777);
+    create_directories("Mazes");
+    create_directories("Mazes/video");
 
     for (int y = 0; y < maze.size(); y++)
     {
@@ -228,7 +229,7 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
 
     // Deletes and recreates folder for saving each temp frame
     remove_all("Mazes/video/temp/");
-    mkdir("Mazes/video/temp", 0777);
+    create_directories("Mazes/video/temp");
 
     // Initializing Variables
     int steps = 1;
@@ -337,11 +338,10 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
     }
 
     // Sets starting and ending position to '*'
-    maze[start_y][start_x] = " * ";
 
     // Deletes and recreates folder for saving each temp frame
     remove_all("Mazes/video/temp/");
-    mkdir("Mazes/video/temp", 0777);
+    create_directories("Mazes/video/temp");
 
     // Initializing Variables
     int steps = 1;
@@ -454,7 +454,7 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
 
     // Deletes and recreates folder for saving each temp frame
     remove_all("Mazes/video/temp/");
-    mkdir("Mazes/video/temp", 0777);
+    create_directories("Mazes/video/temp");
 
     // Initializing Variables
     int steps = 1;
@@ -464,7 +464,11 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
 
     while (start_x != exit_x || start_y != exit_y)
     {
-        random_shuffle(checking_order.begin(), checking_order.end());
+        //Generating random value
+        random_device rd;
+        default_random_engine rng(rd());
+
+        shuffle(checking_order.begin(), checking_order.end(), rng);
         bool moved = false;
 
         for (auto direction : checking_order)
@@ -534,7 +538,7 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
 vector<vector<string>> generateMaze(int size)
 {
     // Initializing blank maze and randomly selecting the start and end points
-    vector<vector<string>> maze(size, vector<string>(size, "███"));
+    vector<vector<string>> maze(size, vector<string>(size, "|||"));
     srand(time(NULL));
 
     int odd_or_even = rand() % 2;
@@ -593,10 +597,10 @@ vector<vector<string>> generateMaze(int size)
     while (!generated)
     {
         // Checks if there is still room to create pathways in the maze
-        if (spot_y + 2 < size && maze[spot_y + 2][spot_x] == "███" ||
-            spot_y - 2 > 0 && maze[spot_y - 2][spot_x] == "███" ||
-            spot_x + 2 < size && maze[spot_y][spot_x + 2] == "███" ||
-            spot_x - 2 > 0 && maze[spot_y][spot_x - 2] == "███")
+        if (spot_y + 2 < size && maze[spot_y + 2][spot_x] == "|||" ||
+            spot_y - 2 > 0 && maze[spot_y - 2][spot_x] == "|||" ||
+            spot_x + 2 < size && maze[spot_y][spot_x + 2] == "|||" ||
+            spot_x - 2 > 0 && maze[spot_y][spot_x - 2] == "|||")
         {
             // Randomly chooses a direction to go
             int direction = rand() % 4;
@@ -604,7 +608,7 @@ vector<vector<string>> generateMaze(int size)
             {
             // Down
             case 0:
-                if (spot_y + 2 < size && maze[spot_y + 2][spot_x] == "███")
+                if (spot_y + 2 < size && maze[spot_y + 2][spot_x] == "|||")
                 {
                     maze[spot_y][spot_x] = "   ";
                     maze[spot_y + 1][spot_x] = "   ";
@@ -614,7 +618,7 @@ vector<vector<string>> generateMaze(int size)
                 }
             // Up
             case 1:
-                if (spot_y - 2 > 0 && maze[spot_y - 2][spot_x] == "███")
+                if (spot_y - 2 > 0 && maze[spot_y - 2][spot_x] == "|||")
                 {
                     maze[spot_y][spot_x] = "   ";
                     maze[spot_y - 1][spot_x] = "   ";
@@ -624,7 +628,7 @@ vector<vector<string>> generateMaze(int size)
                 }
             // Right
             case 2:
-                if (spot_x + 2 < size && maze[spot_y][spot_x + 2] == "███")
+                if (spot_x + 2 < size && maze[spot_y][spot_x + 2] == "|||")
                 {
                     maze[spot_y][spot_x] = "   ";
                     maze[spot_y][spot_x + 1] = "   ";
@@ -634,7 +638,7 @@ vector<vector<string>> generateMaze(int size)
                 }
             // Left
             case 3:
-                if (spot_x - 2 > 0 && maze[spot_y][spot_x - 2] == "███")
+                if (spot_x - 2 > 0 && maze[spot_y][spot_x - 2] == "|||")
                 {
                     maze[spot_y][spot_x] = "   ";
                     maze[spot_y][spot_x - 1] = "   ";
@@ -742,6 +746,7 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze)
         exit(0);
         break;
     }
+    return maze;
 }
 
 void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool solved)
