@@ -105,8 +105,8 @@ void videoSave(vector<vector<string>> maze, string algorithm, int count)
         for (int x = 0; x < maze.size(); x++)
         {
             // Converts paths to black and walls to white and gray for the pathways
-            unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 80
-                                                          : (maze[y][x] == " E ")   ? 80
+            unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 0
+                                                          : (maze[y][x] == " E ")   ? 0
                                                           : (maze[y][x] == " * ")   ? 80
                                                           : (maze[y][x] == " . ")   ? 130
                                                                                     : 255;
@@ -309,6 +309,12 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
             break;
         }
     }
+    // Gets final frame of animation
+    videoSave(maze, algorithm, steps);
+    maze[start_y][start_x] = " * ";
+    steps++;
+
+    // Terminal output
     displayMaze(maze);
     cout << "Maze solved using right turns" << endl;
     cout << "Steps taken: " << steps << endl;
@@ -337,7 +343,8 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
         }
     }
 
-    // Sets starting and ending position to '*'
+    // Sets startings position to '*'
+    maze[start_y][start_x] = " * ";
 
     // Deletes and recreates folder for saving each temp frame
     remove_all("Mazes/video/temp/");
@@ -421,6 +428,12 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
             break;
         }
     }
+    // Gets final frame of animation
+    videoSave(maze, algorithm, steps);
+    maze[start_y][start_x] = " * ";
+    steps++;
+
+    // Terminal output
     displayMaze(maze);
     cout << "Maze solved using left turns" << endl;
     cout << "Steps taken: " << steps << endl;
@@ -464,7 +477,7 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
 
     while (start_x != exit_x || start_y != exit_y)
     {
-        //Generating random value
+        // Generating random value
         random_device rd;
         default_random_engine rng(rd());
 
@@ -529,6 +542,12 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
             previous_locations.pop_back();
         }
     }
+    // Gets final frame of animation
+    videoSave(maze, algorithm, steps);
+    maze[start_y][start_x] = " * ";
+    steps++;
+
+    // Terminal output
     displayMaze(maze);
     cout << "Maze solved using random directions" << endl;
     cout << "Steps taken: " << steps << endl;
