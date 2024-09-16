@@ -14,7 +14,6 @@
 #include <ctime>
 using namespace std;
 using namespace filesystem;
-
 namespace fs = filesystem;
 
 void imageSave(vector<vector<string>> maze, bool solved, int count)
@@ -728,10 +727,16 @@ int getValidInput(int min, int max)
     return digit;
 }
 
-vector<vector<string>> solvingMenu(vector<vector<string>> maze)
+vector<vector<string>> solvingMenu(vector<vector<string>> maze, vector<vector<string>> solved_maze)
 {
-    vector<vector<string>> solved_maze;
-    displayMaze(maze);
+    if (solved_maze.empty())
+    {
+        displayMaze(maze);
+    }
+    else{
+        displayMaze(solved_maze);
+    }
+    
     cout << "List of solving algorithms?" << endl;
     cout << "(1) Right turn only" << endl;
     cout << "(2) Left turn only" << endl;
@@ -740,7 +745,7 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze)
     cout << "(5) Exit" << endl;
 
     int choice = getValidInput(1, 5);
-    system("clear");
+    system("cls");
 
     switch (choice)
     {
@@ -757,7 +762,13 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze)
         return solved_maze;
         break;
     case 4:
-        displayMaze(maze);
+        if (solved_maze.empty())
+        {
+            displayMaze(maze);
+        }
+        else{
+            displayMaze(solved_maze);
+        }
         return solved_maze;
         break;
     case 5:
@@ -773,14 +784,16 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
     while (true)
     {
         cout << "What would you like to do?" << endl;
-        cout << "(1) Save" << endl;
+        cout << "(1) Save Image" << endl;
         cout << "(2) Solve" << endl;
-        cout << "(3) Generate new Maze" << endl;
-        cout << "(4) Exit" << endl;
+        cout << "(3) Clear" << endl;
+        cout << "(4) Generate new Maze" << endl;
+        cout << "(5) Exit" << endl;
         cout << "(#) ";
+        
 
-        int choice = getValidInput(1, 4);
-        system("clear");
+        int choice = getValidInput(1, 5);
+        system("cls");
 
         switch (choice)
         {
@@ -800,7 +813,7 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
             }
         // Solve
         case 2:
-            solved_maze = solvingMenu(maze);
+            solved_maze = solvingMenu(maze, solved_maze);
             if (!solved_maze.empty())
             {
                 solved = true;
@@ -810,25 +823,29 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
                 solved = false;
             }
             break;
-        // New maze
+        // Clear
         case 3:
+            system("cls");
+            displayMaze(maze);
+            solved_maze.clear();
+            solved = false;
+            break;
+        // New maze
+        case 4:
             maze = generateMaze(askMazeSize());
             displayMaze(maze);
             break;
         // Exit
-        case 4:
+        case 5:
             cout << "Bye" << endl;
             exit(0);
-        default:
-            cout << "Invalid option. Please try again." << endl;
-            break;
         }
     }
 }
 
 int main()
 {
-    system("clear");
+    system("cls");
 
     // Title screen
     cout << "Maze Generator - Berger" << endl;
@@ -839,7 +856,7 @@ int main()
     bool solved = false;
     int size = askMazeSize();
     vector<vector<string>> maze = generateMaze(size);
-    system("clear");
+    system("cls");
 
     // Displays maze and sends user to main menu
     displayMaze(maze);
