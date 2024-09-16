@@ -736,7 +736,7 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze, vector<vector<st
     else{
         displayMaze(solved_maze);
     }
-    
+
     cout << "List of solving algorithms?" << endl;
     cout << "(1) Right turn only" << endl;
     cout << "(2) Left turn only" << endl;
@@ -833,6 +833,7 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
         // New maze
         case 4:
             maze = generateMaze(askMazeSize());
+            solved_maze.clear();
             displayMaze(maze);
             break;
         // Exit
