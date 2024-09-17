@@ -11,6 +11,7 @@
 #include <vector>
 #include <cctype>
 #include <string>
+#include <cmath>
 #include <ctime>
 using namespace std;
 using namespace filesystem;
@@ -311,7 +312,9 @@ vector<vector<string>> rightSolve(vector<vector<string>> maze)
     // Gets final frame of animation
     videoSave(maze, algorithm, steps);
     maze[start_y][start_x] = " * ";
-    steps++;
+
+    // Adds two to account for the start and end already being filled
+    steps + 2;
 
     // Terminal output
     displayMaze(maze);
@@ -430,7 +433,9 @@ vector<vector<string>> leftSolve(vector<vector<string>> maze)
     // Gets final frame of animation
     videoSave(maze, algorithm, steps);
     maze[start_y][start_x] = " * ";
-    steps++;
+
+    // Adds two to account for the start and end already being filled
+    steps + 2;
 
     // Terminal output
     displayMaze(maze);
@@ -469,6 +474,7 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
     create_directories("Mazes/video/temp");
 
     // Initializing Variables
+    int working_position;
     int steps = 1;
     string algorithm = "random_solve";
     vector<pair<int, int>> previous_locations;
@@ -479,72 +485,89 @@ vector<vector<string>> randomSolve(vector<vector<string>> maze)
         // Generating random value
         random_device rd;
         default_random_engine rng(rd());
-
         shuffle(checking_order.begin(), checking_order.end(), rng);
-        bool moved = false;
 
-        for (auto direction : checking_order)
+        // Ensuring the first move after randomizing isn't backtracking
+        if (checking_order.front() == working_position)
         {
-            switch (direction)
-            {
-            // Right
-            case (0):
-                if (start_x + 1 < maze[0].size() && (maze[start_y][start_x + 1] == " E " || maze[start_y][start_x + 1] == "   "))
-                {
-                    start_x += 1;
-                    moved = true;
-                }
-                break;
-            // Right
-            case (1):
-                if (start_y + 1 < maze.size() && (maze[start_y + 1][start_x] == " E " || maze[start_y + 1][start_x] == "   "))
-                {
-                    start_y += 1;
-                    moved = true;
-                }
-                break;
-            case 2:
-                if (start_x - 1 >= 0 && (maze[start_y][start_x - 1] == " E " || maze[start_y][start_x - 1] == "   "))
-                {
-                    start_x -= 1;
-                    moved = true;
-                }
-                break;
-            case 3:
-                if (start_y - 1 >= 0 && (maze[start_y - 1][start_x] == " E " || maze[start_y - 1][start_x] == "   "))
-                {
-                    start_y -= 1;
-                    moved = true;
-                }
-                break;
-            }
-            if (moved)
-            {
-                // Saves each frame
-                videoSave(maze, algorithm, steps);
-
-                // Sets the path
-                maze[start_y][start_x] = " * ";
-                previous_locations.push_back({start_y, start_x});
-                steps++;
-            }
+            checking_order.push_back(working_position);
+            checking_order.erase(checking_order.begin());
         }
 
-        if (!moved && !previous_locations.empty())
+        else
         {
-            if (maze[start_y][start_x] != " S " && maze[start_y][start_x] != " E ")
+            bool moved = false;
+            for (auto direction : checking_order)
             {
-                maze[start_y][start_x] = " . ";
+                switch (direction)
+                {
+                // Right
+                case (0):
+                    if (start_x + 1 < maze[0].size() && (maze[start_y][start_x + 1] == " E " || maze[start_y][start_x + 1] == "   "))
+                    {
+                        start_x += 1;
+                        moved = true;
+                        working_position = abs(0 - 2);
+                    }
+                    break;
+                // Down
+                case (1):
+                    if (start_y + 1 < maze.size() && (maze[start_y + 1][start_x] == " E " || maze[start_y + 1][start_x] == "   "))
+                    {
+                        start_y += 1;
+                        moved = true;
+                        working_position = abs(1 - 2);
+                    }
+                    break;
+                // Left
+                case 2:
+                    if (start_x - 1 >= 0 && (maze[start_y][start_x - 1] == " E " || maze[start_y][start_x - 1] == "   "))
+                    {
+                        start_x -= 1;
+                        moved = true;
+                        working_position = abs(2 - 2);
+                    }
+                    break;
+                // Up
+                case 3:
+                    if (start_y - 1 >= 0 && (maze[start_y - 1][start_x] == " E " || maze[start_y - 1][start_x] == "   "))
+                    {
+                        start_y -= 1;
+                        moved = true;
+                        working_position = abs(3 - 2);
+                    }
+                    break;
+                }
+                if (moved)
+                {
+                    // Saves each frame
+                    videoSave(maze, algorithm, steps);
+
+                    // Sets the path
+                    maze[start_y][start_x] = " * ";
+                    previous_locations.push_back({start_y, start_x});
+                    steps++;
+                    break;
+                }
             }
-            start_y = previous_locations.back().first;
-            start_x = previous_locations.back().second;
-            previous_locations.pop_back();
+            if (!moved && !previous_locations.empty())
+            {
+                if (maze[start_y][start_x] != " S " && maze[start_y][start_x] != " E ")
+                {
+                    maze[start_y][start_x] = " . ";
+                }
+                start_y = previous_locations.back().first;
+                start_x = previous_locations.back().second;
+                previous_locations.pop_back();
+            }
         }
     }
     // Gets final frame of animation
     videoSave(maze, algorithm, steps);
     maze[start_y][start_x] = " * ";
-    steps++;
+
+    // Adds two to account for the start and end already being filled
+    steps + 2;
 
     // Terminal output
     displayMaze(maze);
@@ -733,7 +756,8 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze, vector<vector<st
     {
         displayMaze(maze);
     }
-    else{
+    else
+    {
         displayMaze(solved_maze);
     }
 
@@ -766,7 +790,8 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze, vector<vector<st
         {
             displayMaze(maze);
         }
-        else{
+        else
+        {
             displayMaze(solved_maze);
         }
         return solved_maze;
@@ -790,7 +815,6 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
         cout << "(4) Generate new Maze" << endl;
         cout << "(5) Exit" << endl;
         cout << "(#) ";
-        
 
         int choice = getValidInput(1, 5);
         system("cls");
