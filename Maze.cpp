@@ -158,7 +158,7 @@ int askMazeSize()
         digit = stoi(input);
 
         // Ensures mazes are at least size 5 or larger
-        if (digit < 5)
+        if (digit < 7)
         {
             cout << "Too small to generate maze" << endl;
         }
