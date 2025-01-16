@@ -858,6 +858,7 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
         case 4:
             maze = generateMaze(askMazeSize());
             solved_maze.clear();
+            solved = false;
             displayMaze(maze);
             break;
         // Exit
