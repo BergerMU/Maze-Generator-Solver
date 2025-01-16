@@ -5,7 +5,7 @@
 2. Select between saving it as a png, solving it, generating a new maze, and exiting the program
 3. Done!
 
-##Available solving algorithms
+## Available solving algorithms
 * Right turns only
 * Left turns only
 * Random turns only
