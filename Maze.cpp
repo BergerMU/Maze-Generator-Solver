@@ -138,7 +138,7 @@ int askMazeSize()
 {
     // Initalizing variables and getting user input
     string input;
-    cout << "Enter a odd number for your maze size that is at least 5: ";
+    cout << "Enter an odd number for your maze size that is greater than 5: ";
     getline(cin, input);
     int digit;
     bool isdig = true;
@@ -767,6 +767,7 @@ vector<vector<string>> solvingMenu(vector<vector<string>> maze, vector<vector<st
     cout << "(3) Random solve" << endl;
     cout << "(4) Go back" << endl;
     cout << "(5) Exit" << endl;
+    cout << "(#): ";
 
     int choice = getValidInput(1, 5);
     system("cls");
@@ -814,7 +815,7 @@ void menu(vector<vector<string>> maze, vector<vector<string>> solved_maze, bool 
         cout << "(3) Clear" << endl;
         cout << "(4) Generate new Maze" << endl;
         cout << "(5) Exit" << endl;
-        cout << "(#) ";
+        cout << "(#): ";
 
         int choice = getValidInput(1, 5);
         system("cls");
