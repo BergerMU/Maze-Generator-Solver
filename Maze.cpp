@@ -35,9 +35,9 @@ void imageSave(vector<vector<string>> maze, bool solved, int count)
             for (int x = 0; x < maze.size(); x++)
             {
                 // Converts paths to black and walls to white and gray for the pathways
-                unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 0
-                                                              : (maze[y][x] == " E ")   ? 0
-                                                              : (maze[y][x] == " * ")   ? 80
+                unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 130
+                                                              : (maze[y][x] == " E ")   ? 130
+                                                              : (maze[y][x] == " * ")   ? 130
                                                               : (maze[y][x] == " . ")   ? 130
                                                                                         : 255;
                 for (int yy = 0; yy < scale; yy++)
@@ -67,11 +67,11 @@ void imageSave(vector<vector<string>> maze, bool solved, int count)
             for (int x = 0; x < maze.size(); x++)
             {
                 // Converts paths to black and walls to white and gray for the pathways
-                unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 80
-                                                              : (maze[y][x] == " E ")   ? 80
-                                                              : (maze[y][x] == " * ")   ? 80
-                                                              : (maze[y][x] == " . ")   ? 130
-                                                                                        : 255;
+                unsigned char value = (maze[y][x] == "   ") ? 0
+                : (maze[y][x] == " * ")   ? 130 
+                : (maze[y][x] == " . ")   ? 80
+                : 255;
+                
                 for (int yy = 0; yy < scale; yy++)
                 {
                     // Scales the image up
@@ -105,11 +105,11 @@ void videoSave(vector<vector<string>> maze, string algorithm, int count)
         for (int x = 0; x < maze.size(); x++)
         {
             // Converts paths to black and walls to white and gray for the pathways
-            unsigned char value = (maze[y][x] == "   ") ? 0 : (maze[y][x] == " S ") ? 0
-                                                          : (maze[y][x] == " E ")   ? 0
-                                                          : (maze[y][x] == " * ")   ? 80
-                                                          : (maze[y][x] == " . ")   ? 130
-                                                                                    : 255;
+            unsigned char value = (maze[y][x] == "   ") ? 0
+                : (maze[y][x] == " * ")   ? 130 
+                : (maze[y][x] == " . ")   ? 80
+                : 255;
+                
             for (int yy = 0; yy < scale; yy++)
             {
                 // Scales the image up
