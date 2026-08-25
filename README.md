@@ -13,4 +13,4 @@
 ## Notes
 * The solving algorithms save an image of each step of the mazing being solved
 * While solving, the "*" character represents the correct path, and the "." character means the mazes backtracking path
-* Mazes beyond 200 notice longer waiting times
+* Mazes beyond width and height of 200 notice longer waiting times
